@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// --- CSS Styles (Corrected CSS Syntax) ---
+// --- CSS Styles (Glassmorphism, Centering & Mobile Responsive) ---
 const styles = `
   :root {
     --primary: #6366f1;
@@ -11,18 +11,36 @@ const styles = `
     --glass-bg: rgba(15, 23, 42, 0.6);
     --glass-border: rgba(255, 255, 255, 0.1);
   }
-  body { margin: 0; background: var(--bg-dark); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+
+  /* FIXED: Added Flex Centering to Body so the app sits in the middle of the screen */
+  body { 
+    margin: 0; 
+    background: var(--bg-dark); 
+    font-family: 'Segoe UI', sans-serif; 
+    overflow: hidden; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+  }
   
   /* Desktop Layout (Default) */
   .app-container {
-    position: relative; z-index: 10; width: 95vw; height: 90vh;
-    background: var(--glass-bg); backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border); border-radius: 24px;
+    position: relative; 
+    z-index: 10; 
+    width: 95vw; 
+    height: 90vh;
+    background: var(--glass-bg); 
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border); 
+    border-radius: 24px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     display: grid; 
     grid-template-columns: 280px 1fr 280px; 
     overflow: hidden;
-    color: var(--text-main); margin: 5vh auto;
+    color: var(--text-main);
+    /* removed margin: 5vh auto since body handles centering now */
   }
   
   .col { padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid var(--glass-border); position: relative; }
@@ -35,7 +53,7 @@ const styles = `
   }
   h3 { text-transform: uppercase; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
   
-  /* FIXED: Used proper CSS syntax (kebab-case) instead of JS syntax */
+  /* Toolbar: Ensures badge is Left and buttons are Right */
   .toolbar {
     display: flex; 
     justify-content: space-between; 
@@ -106,6 +124,9 @@ const styles = `
 
   /* --- MOBILE RESPONSIVE LAYOUT --- */
   @media (max-width: 768px) {
+    body {
+      display: block; /* Reset flex on body for mobile to prevent squishing */
+    }
     .app-container {
       width: 100%;
       height: 100dvh;
