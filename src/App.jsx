@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// --- CSS Styles (Glassmorphism, Centering & Mobile Responsive) ---
+// --- CSS Styles (Corrected CSS Syntax) ---
 const styles = `
   :root {
     --primary: #6366f1;
@@ -35,8 +35,13 @@ const styles = `
   }
   h3 { text-transform: uppercase; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
   
+  /* FIXED: Used proper CSS syntax (kebab-case) instead of JS syntax */
   .toolbar {
-    display: flex; justifyContent: space-between; margin-bottom: 1rem; align-items: center; width: 100%;
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 1rem; 
+    align-items: center; 
+    width: 100%;
   }
   
   .btn-group {
@@ -70,7 +75,7 @@ const styles = `
     width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: none;
     color: var(--text-main); padding: 1.5rem; resize: none; outline: none;
     font-family: 'Courier New', monospace; border-radius: 12px;
-    overflow-y: auto; /* Ensure vertical scrollbar */
+    overflow-y: auto;
   }
 
   /* Custom Scrollbar Styling */
@@ -88,7 +93,6 @@ const styles = `
   
   .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; z-index: -1; }
   
-  /* Progress Bar fixed to bottom of container */
   .progress-bar { 
     height: 4px; 
     background: rgba(255,255,255,0.1); 
@@ -103,8 +107,8 @@ const styles = `
   /* --- MOBILE RESPONSIVE LAYOUT --- */
   @media (max-width: 768px) {
     .app-container {
-      width: 100%;       /* Fix horizontal overflow */
-      height: 100dvh;    /* Use Dynamic Viewport Height for mobile browsers */
+      width: 100%;
+      height: 100dvh;
       margin: 0;
       border: none;
       border-radius: 0;
@@ -142,12 +146,11 @@ const styles = `
       overflow: hidden;
     }
     
-    /* Mobile Toolbar tweaks */
     .toolbar {
       gap: 10px;
     }
     .btn {
-      padding: 6px 10px; /* Smaller buttons on mobile */
+      padding: 6px 10px;
       font-size: 0.85rem;
     }
     .btn-group {
