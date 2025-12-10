@@ -118,11 +118,11 @@ const styles = `
     overflow-y: auto;
   }
 
-  /* Custom Scrollbar Styling */
-  textarea::-webkit-scrollbar { width: 8px; }
-  textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 0 12px 12px 0; }
-  textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-  textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  /* Custom Scrollbar Styling - HIGH VISIBILITY FIX */
+  textarea::-webkit-scrollbar { width: 10px; }
+  textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.4); border-radius: 0 12px 12px 0; }
+  textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 5px; }
+  textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.6); }
   
   .file-tab {
     padding: 12px; 
