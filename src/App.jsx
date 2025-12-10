@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
-// --- CSS Styles (Glassmorphism, Centering & Mobile Responsive) ---
+// --- CSS Styles (Deep Dark Theme + Glassmorphism + Mobile Layout) ---
 const styles = `
   :root {
     --primary: #6366f1;
     --accent-pink: #ec4899;
-    --bg-dark: #0f172a;
+    
+    /* UPDATED: Deep Dark Palette */
+    --bg-dark: #02040a;         /* Deep Navy/Black */
     --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --glass-bg: rgba(15, 23, 42, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-muted: #64748b;
+    
+    /* UPDATED: Darker, more opaque glass */
+    --glass-bg: rgba(13, 17, 28, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
 
   /* FIXED: Added Flex Centering to Body so the app sits in the middle of the screen */
@@ -32,24 +36,29 @@ const styles = `
     width: 95vw; 
     height: 90vh;
     background: var(--glass-bg); 
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px); /* Increased blur for dark mode */
     border: 1px solid var(--glass-border); 
     border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); /* Darker shadow */
     display: grid; 
     grid-template-columns: 280px 1fr 280px; 
     overflow: hidden;
     color: var(--text-main);
-    /* removed margin: 5vh auto since body handles centering now */
   }
   
-  .col { padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid var(--glass-border); position: relative; }
+  .col { 
+    padding: 1.5rem; 
+    display: flex; 
+    flex-direction: column; 
+    border-right: 1px solid var(--glass-border); 
+    position: relative; 
+  }
   .col:last-child { border-right: none; }
   
   /* Typography & Centering */
   h2, h3 { 
     text-align: center !important; width: 100%; margin: 0 0 1rem 0; 
-    font-weight: 500; display: block;
+    font-weight: 600; display: block;
   }
   h3 { text-transform: uppercase; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
   
@@ -67,30 +76,43 @@ const styles = `
   }
 
   .status-badge {
-    background: rgba(255,255,255,0.1); padding: 0 16px; height: 32px;
+    background: rgba(255,255,255,0.05); 
+    border: 1px solid var(--glass-border);
+    padding: 0 16px; height: 32px;
     border-radius: 20px; font-size: 0.8rem; display: inline-flex;
     align-items: center; justify-content: center; min-width: 60px;
     white-space: nowrap;
+    color: var(--text-muted);
   }
 
   .drop-zone {
     flex: 1; border: 2px dashed var(--glass-border); border-radius: 16px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.2s; color: var(--text-muted); text-align: center;
+    background: rgba(255,255,255,0.01);
   }
-  .drop-zone:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); color: white; }
+  .drop-zone:hover { 
+    border-color: var(--primary); 
+    background: rgba(99, 102, 241, 0.05); 
+    color: white; 
+  }
   
   .btn {
-    background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;
+    background: rgba(255,255,255,0.05); 
+    border: 1px solid var(--glass-border); 
+    color: var(--text-main);
     padding: 8px 16px; border-radius: 8px; cursor: pointer; 
     display: flex; align-items: center; justify-content: center; gap: 8px;
     white-space: nowrap;
   }
-  .btn:hover { background: rgba(255,255,255,0.2); }
-  .btn-primary { background: var(--primary); border-color: var(--primary); }
+  .btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .btn-primary { background: var(--primary); border-color: var(--primary); color: white; }
+  .btn-primary:hover { background: #4f46e5; border-color: #4f46e5; }
   
   textarea {
-    width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: none;
+    width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.3); /* Darker textarea background */
+    border: none;
     color: var(--text-main); padding: 1.5rem; resize: none; outline: none;
     font-family: 'Courier New', monospace; border-radius: 12px;
     overflow-y: auto;
@@ -98,18 +120,22 @@ const styles = `
 
   /* Custom Scrollbar Styling */
   textarea::-webkit-scrollbar { width: 8px; }
-  textarea::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 0 12px 12px 0; }
-  textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-  textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+  textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 0 12px 12px 0; }
+  textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
   
   .file-tab {
-    padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;
+    padding: 12px; 
+    background: rgba(255,255,255,0.03); 
+    border-radius: 8px;
     cursor: pointer; margin-bottom: 8px; transition: 0.2s; display: flex; 
     justify-content: space-between; align-items: center;
+    color: var(--text-muted);
   }
-  .file-tab.active { background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); }
+  .file-tab:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+  .file-tab.active { background: rgba(99, 102, 241, 0.15); border: 1px solid var(--primary); color: var(--text-main); }
   
-  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; z-index: -1; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4; z-index: -1; }
   
   .progress-bar { 
     height: 4px; 
@@ -181,7 +207,7 @@ const styles = `
     /* 3. Bottom Section: Files */
     .col:nth-child(3) {
       border-bottom: none;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.3); /* Slightly darker mobile drawer */
     }
     .col:nth-child(3) h3 {
       text-align: left !important;
