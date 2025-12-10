@@ -25,7 +25,7 @@ const styles = `
     color: var(--text-main); margin: 5vh auto;
   }
   
-  .col { padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid var(--glass-border); }
+  .col { padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid var(--glass-border); position: relative; }
   .col:last-child { border-right: none; }
   
   /* Typography & Centering */
@@ -35,10 +35,19 @@ const styles = `
   }
   h3 { text-transform: uppercase; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
   
+  .toolbar {
+    display: flex; justifyContent: space-between; margin-bottom: 1rem; align-items: center; width: 100%;
+  }
+  
+  .btn-group {
+    display: flex; gap: 8px;
+  }
+
   .status-badge {
     background: rgba(255,255,255,0.1); padding: 0 16px; height: 32px;
     border-radius: 20px; font-size: 0.8rem; display: inline-flex;
     align-items: center; justify-content: center; min-width: 60px;
+    white-space: nowrap;
   }
 
   .drop-zone {
@@ -52,6 +61,7 @@ const styles = `
     background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;
     padding: 8px 16px; border-radius: 8px; cursor: pointer; 
     display: flex; align-items: center; justify-content: center; gap: 8px;
+    white-space: nowrap;
   }
   .btn:hover { background: rgba(255,255,255,0.2); }
   .btn-primary { background: var(--primary); border-color: var(--primary); }
@@ -60,7 +70,14 @@ const styles = `
     width: 100%; height: 100%; background: rgba(0,0,0,0.2); border: none;
     color: var(--text-main); padding: 1.5rem; resize: none; outline: none;
     font-family: 'Courier New', monospace; border-radius: 12px;
+    overflow-y: auto; /* Ensure vertical scrollbar */
   }
+
+  /* Custom Scrollbar Styling */
+  textarea::-webkit-scrollbar { width: 8px; }
+  textarea::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 0 12px 12px 0; }
+  textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
   
   .file-tab {
     padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;
@@ -70,20 +87,29 @@ const styles = `
   .file-tab.active { background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); }
   
   .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; z-index: -1; }
-  .progress-bar { height: 4px; background: rgba(255,255,255,0.1); margin-top: -4px; position: relative; width: 100%; }
+  
+  /* Progress Bar fixed to bottom of container */
+  .progress-bar { 
+    height: 4px; 
+    background: rgba(255,255,255,0.1); 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    z-index: 5;
+  }
   .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
 
   /* --- MOBILE RESPONSIVE LAYOUT --- */
   @media (max-width: 768px) {
     .app-container {
-      width: 100vw;
-      height: 100vh; /* Full screen */
+      width: 100%;       /* Fix horizontal overflow */
+      height: 100dvh;    /* Use Dynamic Viewport Height for mobile browsers */
       margin: 0;
       border: none;
       border-radius: 0;
-      grid-template-columns: 1fr; /* Single Column */
-      /* Row 1: Import (Auto height), Row 2: Text (Takes remaining space), Row 3: Files (Fixed height) */
-      grid-template-rows: auto 1fr 180px; 
+      grid-template-columns: 1fr; 
+      grid-template-rows: auto 1fr 200px; 
     }
 
     .col {
@@ -99,11 +125,11 @@ const styles = `
       padding-bottom: 1rem;
     }
     .col:nth-child(1) h2 { 
-      display: none; /* Hide 'Import' header to save space on mobile */
+      display: none; 
     }
     .drop-zone {
-      min-height: 80px;
-      flex-direction: row; /* Horizontal layout for mobile */
+      min-height: 60px;
+      flex-direction: row; 
       gap: 15px;
     }
     .drop-icon {
@@ -115,14 +141,26 @@ const styles = `
     .col:nth-child(2) {
       overflow: hidden;
     }
+    
+    /* Mobile Toolbar tweaks */
+    .toolbar {
+      gap: 10px;
+    }
+    .btn {
+      padding: 6px 10px; /* Smaller buttons on mobile */
+      font-size: 0.85rem;
+    }
+    .btn-group {
+      gap: 5px;
+    }
 
     /* 3. Bottom Section: Files */
     .col:nth-child(3) {
       border-bottom: none;
-      background: rgba(0,0,0,0.2); /* Darker background for bottom drawer */
+      background: rgba(0,0,0,0.2);
     }
     .col:nth-child(3) h3 {
-      text-align: left !important; /* Left align 'Files' header on mobile */
+      text-align: left !important;
       margin-bottom: 0.5rem;
     }
   }
@@ -228,7 +266,10 @@ export default function App() {
   const extractImage = async (fileObj) => {
     const { data } = await window.Tesseract.recognize(fileObj.file, 'eng', {
       logger: m => {
-        if (m.status === 'recognizing text') updateFile(fileObj.id, { progress: Math.round(m.progress * 100) });
+        if (m.status === 'recognizing text') {
+          fileObj.progress = Math.round(m.progress * 100);
+          if(state.activeFileId === fileObj.id) updateProgressBar(fileObj.progress);
+        }
       }
     });
     return data.text;
@@ -269,11 +310,11 @@ export default function App() {
 
         {/* Center: Output */}
         <div className="col">
-          <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center'}}>
+          <div className="toolbar">
              <div className="status-badge">
                {activeFile ? (activeFile.status === 'processing' ? 'Processing...' : 'Ready') : 'Idle'}
              </div>
-             <div style={{display: 'flex', gap: '8px'}}>
+             <div className="btn-group">
                <button className="btn" onClick={() => window.speechSynthesis.cancel()}>Stop</button>
                <button className="btn" onClick={readText}>Read</button>
                <button className="btn btn-primary" onClick={copyText}>Copy</button>
